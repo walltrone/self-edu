@@ -1,9 +1,13 @@
 import random
 
-bag = [str(i).ljust(3) for i in range(1, 100)]
+ticket_count = int(input())
+tickets = []
+bag = [str(i).ljust(3) for i in range(100)]
+counters = []
 
-def make_ticket():
-    numbers = [str(i).ljust(3) for i in range(1, 100)]
+
+def make_ticket(n):
+    numbers = [str(i).ljust(3) for i in range(100)]
     ticket = []
     for i in range(3):
         string = []
@@ -12,49 +16,51 @@ def make_ticket():
             string.append(num)
             numbers.remove(num)
         ticket.append(string)
+    ticket.append(str(n + 1).rjust(2, "0"))
+    print_ticket(ticket)
     return ticket
 
+
 def check_ticket(ticket, barrel):
-  for i in range(len(ticket)):
-    for j in range(len(ticket[i])):
-      if barrel == ticket[i][j]:
-        ticket[i][j] = '[] '
-  print_ticket(ticket)
-  return(ticket)
+    for n in range(len(ticket)):
+        for i in range(len(ticket[n]) - 1):
+            for j in range(len(ticket[n][i])):
+                if barrel == ticket[n][i][j]:
+                    ticket[n][i][j] = '[] '
+        print_ticket(ticket[n])
+    return ticket
+
 
 def print_ticket(ticket):
-    print('_'*18)
+    print(f'____Билет № {ticket[3]}____')
     for i in ticket:
-        print('| ', *i, '|', sep='')
-    print('T'*18)
+        if type(i) == list:
+            print('| ', *i, '|', sep='')
+    print('T' * 18)
 
-def check_count(ticket):
-    counter = 0
-    for i in ticket:
-        counter += i.count('[] ')
-    return counter
 
-ticket_one = make_ticket()
-print_ticket(ticket_one)
+def check_count(tickets):
+    for n in range(len(tickets)):
+        counter = 0
+        for i in tickets[n]:
+            counter += i.count('[] ')
+        counters[n] = counter
+    return counters
 
-ticket_two = make_ticket()
-print_ticket(ticket_two)
 
-while bag and check_count(ticket_one) < 15 and check_count(ticket_two) < 15:
+for i in range(ticket_count):
+    tickets.append(make_ticket(i))
+    counters.append(0)
+
+while bag and 15 not in check_count(tickets):
     if input('Взять бочонок?\n(Если просто нажать "Enter" - игра закончится)\n'):
         barrel = random.choice(bag)
         bag.remove(barrel)
         print('Вы взяли бочонок №', barrel, 'В мешке осталось', len(bag), 'бочонков')
-        check_ticket(ticket_one, barrel)
-        check_ticket(ticket_two, barrel)
+        check_ticket(tickets, barrel)
     else:
         break
-
-print(f'Счет по билетам\nБилет №1: {check_count(ticket_one)}\nБилет №2: {check_count(ticket_two)}')
-if check_count(ticket_one) > check_count(ticket_two):
-    res = 'Выиграл билет №1'
-elif check_count(ticket_one) < check_count(ticket_two):
-    res = 'Выиграл билет №2'
-else:
-    res = 'Ничья'
-print(res)
+res = check_count(tickets)
+for n in range(len(res)):
+    if res[n] == 15:
+        print(f'Выиграл билет №{tickets[n][-1]}')
